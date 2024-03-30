@@ -3,21 +3,26 @@ Super lightweight interface for running and deploying gunicorn app processes.
 
 #### Instructions:
 
-**1.** After downloading the repo, create an alias to `runapp.py` in your bash settings or as a symlink. Replace `{install}` with your installation directory.
+##### Step 1
 
-Option 1: bash alias.
+After downloading the repo, create an alias to `runapp.py` in your bash settings or create a symlink to it in your local binary (`bin`) directory. 
+
+> Replace `{install}` with the path to your clone directory in the following examples.
+
+Option 1: Adding an alias to bash. Depending on your system the file could be: *~/.bashrc*, *~/.bash_aliases*, or *~/.bash_profiles*.
 
 ```console
 alias runapp='{install}/runapp/runapp.py'
 ```
 
-Option 2: symbolic link.
+Option 2: Creating a symbolic link to the binary directory.
 
 ```console
 ln -s {install}/runapp/runapp.py /usr/bin/runapp
 ```
 
-**2.** Create or copy the `runapp.conf` file to your app directory and configure the settings.
+##### Step 2
+After creating an alias to `runapp`, create or copy the `runapp.conf` file to your app directory and configure the settings.
 
 Edit `runapp.conf` settings.
     
