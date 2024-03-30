@@ -38,4 +38,4 @@ runapp
 Ported from the original perl script version to python3. You can access the original perl version of at [ryt/runapp](https://github.com/ryt/runapp). 
 
 
-<small>Copyright &copy; 2024 Ray Mentose.</small>
+<sub>Copyright &copy; 2024 Ray Mentose.</sub>
