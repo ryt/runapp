@@ -8,13 +8,7 @@ Super lightweight interface for running and deploying gunicorn app processes.
 Clone the project. Then create an alias to `runapp.py` to make it accessible as `runapp` in your terminal. For detailed instructions, scroll to the [installation](#Installation) section at the bottom.
 
 ##### Step 2
-After creating an alias to `runapp`, create or copy the `runapp.conf` file to your app directory for each app you want to manage and configure the settings.
-    
-```console
-vi runapp.conf
-```
-    
-Modify the specific options you want for your app.
+Create or copy the `runapp.conf` file to your app directory and edit the settings.
     
 ```ini
 {
