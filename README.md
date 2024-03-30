@@ -45,7 +45,7 @@ runapp
 
 #### Installation
 
-Below are 2 options creating an alias to `runapp.py`. Replace *{install}* with the path to your clone directory in the following examples.
+Below are 2 options creating an alias to `runapp.py`. In the following examples, replace *{install}* with the path to the directory where you cloned or downloaded the repository.
 
 Option 1: Adding an alias in your bash config.
 
