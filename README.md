@@ -1,7 +1,7 @@
 # runapp.py
 Super lightweight interface for running and deploying gunicorn app processes.
 
-#### Instructions:
+#### Instructions
 
 ##### Step 1
 
@@ -22,8 +22,7 @@ Create or copy the `runapp.conf` file to your app directory and edit the setting
 ```
 
 
-
-#### Usage:
+#### Usage
 
 ```console
 runapp start
@@ -57,7 +56,7 @@ ln -s {install}/runapp/runapp.py /usr/bin/runapp
 > The proper binary directory may differ based on your system. It could be */usr/bin*, */usr/local/bin*, */usr/opt/bin*, etc...
 
 #### Notes
-Ported from the original perl script version to python3. You can access the original perl version of at [ryt/runapp-perl](https://github.com/ryt/runapp-perl). 
+Ported from the original perl script version to python3. You can access the original perl version at [ryt/runapp-perl](https://github.com/ryt/runapp-perl). 
 
 
 <sub>Copyright &copy; 2024 Ray Mentose.</sub>
