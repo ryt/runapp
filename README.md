@@ -3,20 +3,30 @@ Super lightweight interface for running and deploying gunicorn app processes.
 
 #### Instructions:
 
-1. After downloading the repo, create a symlink or alias to `runapp.py` in your executable directory or bash settings to access it. Replace `{install}` with your installation directory.
+**1.** After downloading the repo, create an alias to `runapp.py` in your bash settings or as a symlink. Replace `{install}` with your installation directory.
+
+Option 1: bash alias.
 
 ```console
-alias runapp='{install}/runapp.py/runapp.py'
+alias runapp='{install}/runapp/runapp.py'
 ```
 
-2. Create or copy the `runapp.conf` file to your app directory and configure the settings.
+Option 2: symbolic link.
 
+```console
+ln -s {install}/runapp/runapp.py /usr/bin/runapp
+```
+
+**2.** Create or copy the `runapp.conf` file to your app directory and configure the settings.
+
+Edit `runapp.conf` settings.
+    
 ```console
 vi runapp.conf
 ```
-
-Modify the settings for your app.
-
+    
+Modify the options you want for your app.
+    
 ```ini
 {
   appname  => 'hellopy',
@@ -27,6 +37,7 @@ Modify the settings for your app.
   port     => '8000'
 }
 ```
+
 
 
 #### Usage:
@@ -42,7 +53,7 @@ runapp
 
 
 #### Notes
-Ported from the original perl script version to python3. You can access the original perl version of at [ryt/runapp](https://github.com/ryt/runapp). 
+Ported from the original perl script version to python3. You can access the original perl version of at [ryt/runapp-perl](https://github.com/ryt/runapp-perl). 
 
 
 <sub>Copyright &copy; 2024 Ray Mentose.</sub>

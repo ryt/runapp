@@ -3,7 +3,7 @@
 v = '0.0.1'
 c = 'Copyright (C) 2024 Ray Mentose.'
 man="""
-runapp.py: Super lightweight interface for running and deploying gunicorn app processes.
+runapp: Super lightweight interface for running and deploying gunicorn app processes.
 
 --
 Usage
