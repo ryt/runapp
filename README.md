@@ -25,6 +25,10 @@ Create or copy the `runapp.conf` file to your app directory and edit the setting
 #### Usage
 
 ```console
+cd my-app
+```
+
+```console
 runapp start
 runapp stop
 runapp restart
