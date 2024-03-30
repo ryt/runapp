@@ -18,7 +18,14 @@ vi runapp.conf
 Modify the settings for your app.
 
 ```ini
-{ appname => hello } etc...
+{
+  appname  => 'hellopy',
+  appcall  => 'app:hello',
+  appuser  => 'ray',
+  appgroup => 'staff',
+  workers  => '2',
+  port     => '8000'
+}
 ```
 
 
