@@ -5,7 +5,7 @@
 
 ##### Step 1
 
-Clone the project. Then create an alias to `runapp.py` to make it accessible as `runapp` in your terminal. For detailed on how to do that, scroll to the [installation](#Installation) section at the bottom.
+Clone the project. Then create an alias to `runapp.py` to make it accessible as `runapp` in your terminal. For details on how to do that, scroll to the [installation](#Installation) section at the bottom.
 
 ##### Step 2
 Create or copy the `runapp.conf` file to your app directory and edit the settings.
