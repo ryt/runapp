@@ -33,7 +33,6 @@ runapp stop
 runapp restart
 runapp reload
 runapp (list|-l)
-runapp (conf|-c)
 ```
 To simply print the gunicorn or shell command used and exit, add the `-s` option as the **third** parameter to any option above.
 
@@ -42,6 +41,12 @@ runapp start   -s
 runapp reload  -s
 runapp list    -s
 ...
+```
+To view the app settings config file or pid file, use the following options:
+
+```console
+runapp (conf|-c)
+runapp (pid|-p)
 ```
 
 > When using runapp, a directory named `~/.runapp/` will be created automatically in your home to store the process ids for each app/process that you run. The pids will get deleted automatically whenever the process is stopped. You can use the pid number to debug any issues you may run into when deploying apps.

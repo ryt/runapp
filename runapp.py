@@ -24,6 +24,10 @@ Usage:
   -------------------------------------------------
   runapp    (conf|-c)
 
+  Show the contents of the pid file
+  ---------------------------------
+  runapp    (pid|-p)
+
   Help manual and version
   -----------------------
   runapp    (man|help|-h|--help)
@@ -57,7 +61,7 @@ def load_conf():
     sys.exit('Sorry, the settings file (runapp.conf) could not be found in the current directory.')
 
   global config, appname, appcall, appuser, appgroup, workers, port
-  global run, exe, cme
+  global run, exe, cme, pid_file
   global macos_add, cm_start, cm_stop, cm_list
 
   # Specific app settings for gunicorn. 
@@ -79,6 +83,8 @@ def load_conf():
   exe = ''
   cme = ''
 
+  pid_file = f'{pids_dir}{appname}.pid'
+
   # On MacOS (i.e. Darwin) replace long folder names with '...':
 
   macos_add = "--color=always | sed 's/Library.*MacOS/.../g'" if sys.platform == 'darwin' else '';
@@ -86,8 +92,30 @@ def load_conf():
   # Main gunicorn and process list commands
 
   cm_start = f'gunicorn {appcall} -n {appname} -p {pids_dir+appname}.pid -w {workers} -u {appuser} -g {appgroup} -b :{port} -D';
-  cm_stop  = f'kill -9 `cat {pids_dir+appname}.pid` && rm {pids_dir+appname}.pid';
+  cm_stop  = f'kill -9 `cat {pid_file}` && rm {pid_file}';
   cm_list  = f"ps aux | grep '[{appname[0:1]}]{appname[1:]}' {macos_add}";
+
+
+def ps_aux():
+  """
+  Reference for `ps aux` output columns: https://superuser.com/a/117921
+  --
+  0     1    2     3     4    5    6    7     8      9     10
+  USER  PID  %CPU  %MEM  VSZ  RSS  TTY  STAT  START  TIME  COMMAND
+  --
+  USER    = user owning the process
+  PID     = process ID of the process
+  %CPU    = It is the CPU time used divided by the time the process has been running.
+  %MEM    = ratio of the process’s resident set size to the physical memory on the machine
+  VSZ     = virtual memory usage of entire process (in KiB)
+  RSS     = resident set size, the non-swapped physical memory that a task has used (in KiB)
+  TTY     = controlling tty (terminal)
+  STAT    = multi-character process state
+  START   = starting time or date of the process
+  TIME    = cumulative CPU time
+  COMMAND = command with all its arguments
+  --
+  """
 
 
 def get_pid():
@@ -96,15 +124,21 @@ def get_pid():
   load_conf()
 
   if os.path.exists(pids_dir) and os.path.isdir(pids_dir):
-    pid = 'exists'
+    if os.path.exists(pid_file):
+      with open(pid_file, 'r') as p:
+        p = p.read().strip()
+      pid = p
+    else:
+      pid = ''
   else:
-    os.mkdir(pids_dir)
-    pid = 'newpid'
+    try:
+      os.mkdir(pids_dir)
+      pid = ''
+    except OSError as error:
+      sys.exit(f'Could not create or access the ~/.runapp/ directory: {error}')
 
-  if os.path.exists(pids_dir) and os.path.isdir(pids_dir):
-    return pid
-  else:
-    sys.exit("Could not create or access the ~/.runapp/ directory. Please create it and make sure it's writable.")
+  return pid
+   
 
 def show_cmd(cmd):
   """Print the gunicorn or shell command and exit on the '-s' option"""
@@ -165,6 +199,10 @@ def process_conf():
     content = conf.read().strip()
   print(content)
 
+def process_pid():
+  pid = get_pid()
+  print(pid)
+
 def main():
 
   if len(sys.argv) == 1:
@@ -187,6 +225,9 @@ def main():
 
   elif sys.argv[1] in ('conf','-c'):
     return process_conf()
+
+  elif sys.argv[1] in ('pid','-p'):
+    return process_pid()
 
   elif sys.argv[1] in ('-v','--version'):
     return print(f'Version: {v}')
