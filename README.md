@@ -55,7 +55,7 @@ Option 1: Adding an alias in your bash config.
 
 >Depending on your system the file could be: *~/.bashrc*, *~/.bash_aliases*, or *~/.bash_profiles*.
 
-```console
+```bash
 alias runapp='{install}/runapp/runapp.py'
 ```
 
