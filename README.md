@@ -11,14 +11,12 @@ Clone the project. Then create an alias to `runapp.py` to make it accessible as 
 Create or copy the `runapp.conf` file to your app directory and edit the settings.
     
 ```ini
-{
-  appname  => 'hellopy',
-  appcall  => 'app:hello',
-  appuser  => 'ray',
-  appgroup => 'staff',
-  workers  => '2',
-  port     => '8000'
-}
+appname  = hellopy
+appcall  = app:hello
+appuser  = ray
+appgroup = staff
+workers  = 2
+port     = 8000
 ```
 
 
@@ -29,12 +27,12 @@ cd my-app
 ```
 
 ```console
+runapp
 runapp start
 runapp stop
 runapp restart
 runapp reload
-runapp list
-runapp
+runapp (list|-l)
 ```
 
 > When using runapp, a directory named `~/.runapp` will automatically be created in your home directory to store the process id's for each app/process that you run. The pids will get automatically deleted whenever the process is stopped. You can use the pid number to debug any issues you may run into when deploying apps.
