@@ -11,7 +11,7 @@ Clone the project. Then create an alias to `runapp.py` to make it accessible as 
 Create or copy the `runapp.conf` file to your app directory and edit the settings.
     
 ```ini
-appname  = hellopy
+appname  = myapp
 appcall  = app:hello
 appuser  = ray
 appgroup = staff
@@ -23,7 +23,7 @@ port     = 8000
 #### Usage
 
 ```console
-cd my-app
+cd myapp
 ```
 
 ```console
