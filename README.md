@@ -35,7 +35,7 @@ runapp reload
 runapp (list|-l)
 ```
 
-> When using runapp, a directory named `~/.runapp` will be created automatically in your home to store the process ids for each app/process that you run. The pids will get deleted automatically whenever the process is stopped. You can use the pid number to debug any issues you may run into when deploying apps.
+> When using runapp, a directory named `~/.runapp/` will be created automatically in your home to store the process ids for each app/process that you run. The pids will get deleted automatically whenever the process is stopped. You can use the pid number to debug any issues you may run into when deploying apps.
 
 
 #### Installation
