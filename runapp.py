@@ -43,7 +43,7 @@ import pydoc
 import requests
 import itertools
 
-from subprocess import call
+from subprocess import check_output
 from configparser import ConfigParser
 
 pids_dir  = f'{os.path.expanduser("~")}/.runapp/'
@@ -112,8 +112,8 @@ def show_cmd(cmd):
     sys.exit(cmd)
 
 def run_cmd(cmd):
-  """Run the command using subprocess.call()"""
-  return call(cmd, shell=True)
+  """Run the command using subprocess.check_output()"""
+  return check_output(cmd, shell=True, encoding='utf-8')
 
 def process_list():
   pid = get_pid()
@@ -121,7 +121,9 @@ def process_list():
   show_cmd(cmd)
   print(f'Listing running processes for {appname} (port {port}).')
   run = run_cmd(cmd)
-  if not run:
+  if run:
+    print(run)
+  else:
     print(f'No processes found for {appname}. App is currently not running.')
 
 def process_start():
@@ -130,7 +132,9 @@ def process_start():
   show_cmd(cmd)
   print(f'Starting {appname} using {appcall} at port {port}.')
   run = run_cmd(cmd)
-  if not run:
+  if run:
+    print(run)
+  else:
     print('Nothing to start. Please double check your app configuration.')
 
 def process_stop():
@@ -139,7 +143,9 @@ def process_stop():
   show_cmd(cmd)
   print(f'Stopping {appname} and unbiding from port {port}.')
   run = run_cmd(cmd)
-  if not run:
+  if run:
+    print(run)
+  else:
     print('Nothing to stop. Please double check your app configuration.')
 
 def process_restart(input='reload'):
@@ -148,7 +154,9 @@ def process_restart(input='reload'):
   print(f'Restarting {appname} using {appcall} at port {port}.')
   show_cmd(cmd)
   run = run_cmd(cmd)
-  if not run:
+  if run:
+    print(run)
+  else:
     print('Nothing to restart. Please double check your app configuration.')
 
 def process_conf():
