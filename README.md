@@ -64,7 +64,7 @@ Option 2: Creating a symbolic link and adding it to the binary directory.
 ```console
 ln -s {install}/runapp/runapp.py /usr/bin/runapp
 ```
-> The **bin** directory may differ based on your system. It could be */usr/bin*, */usr/local/bin*, */usr/opt/bin*, etc...
+> The **bin** directory may differ based on your system. It could be */usr/bin*, */usr/local/bin*, */usr/opt/bin*, etc.
 
 #### Notes
 Ported from the original perl script version to python3. You can access the original perl version at [ryt/runapp-perl](https://github.com/ryt/runapp-perl). 
