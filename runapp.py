@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-v = '0.0.1'
+v = '0.0.2'
 c = 'Copyright (C) 2024 Ray Mentose.'
 man="""
 runapp: Super lightweight interface for running and deploying gunicorn app processes.
 --
 Usage:
 
-  Commands for managing the app in the current working directory
-  --------------------------------------------------------------
+  Options for managing the app in the current working directory
+  -------------------------------------------------------------
   runapp
   runapp    start
   runapp    stop
@@ -16,11 +16,22 @@ Usage:
   runapp    reload
   runapp    (list|-l)
 
+  Show the gunicorn or shell command and exit (for any of the above options)
+  --------------------------------------------------------------------------
+  runapp    ...           -s
+
+  Show the contents of the app settings config file
+  -------------------------------------------------
+  runapp    (conf|-c)
+
   Help manual and version
   -----------------------
   runapp    (man|help|-h|--help)
   runapp    (-v|--version)
 
+--
+Copyright (C) 2024 Ray Mentose. 
+Latest version can be found at: https://github.com/ryt/runapp
 --
 
 """
@@ -75,7 +86,7 @@ def load_conf():
 
   cm_start = f'gunicorn {appcall} -n {appname} -p {pids_dir+appname}.pid -w {workers} -u {appuser} -g {appgroup} -b :{port} -D';
   cm_stop  = f'kill -9 `cat {pids_dir+appname}.pid` && rm {pids_dir+appname}.pid';
-  cm_list  = f"ps aux | grep '[substr($appname, 0, 1) . ]  substr($appname, 1) . ' {macos_add}";
+  cm_list  = f"ps aux | grep '[{appname[0:1]}]{appname[1:]}' {macos_add}";
 
 
 def get_pid():
@@ -94,24 +105,44 @@ def get_pid():
   else:
     sys.exit("Could not create or access the ~/.runapp/ directory. Please create it and make sure it's writable.")
 
+def show_cmd(cmd):
+  """Print the gunicorn or shell command and exit on the '-s' option"""
+  if len(sys.argv) > 2 and sys.argv[2] == '-s':
+    sys.exit(cmd)
 
 def process_list():
   pid = get_pid()
-  print(cm_list)
+  cmd = cm_list
+  show_cmd(cmd)
+  print(f'Listing running processes for {appname} (port {port}).')
+  return cmd
 
 def process_start():
   pid = get_pid()
-  print(cm_start)
+  cmd = cm_start
+  show_cmd(cmd)
+  print(f'Starting {appname} using {appcall} at port {port}.')
+  return cmd
 
 def process_stop():
   pid = get_pid()
-  print(cm_stop)
+  cmd = cm_stop
+  show_cmd(cmd)
+  print(f'Stopping {appname} and unbiding from port {port}.')
+  return cmd
 
-def process_restart(cmd='reload'):
+def process_restart(input='reload'):
   pid = get_pid()
-  print(f'Running {cmd}')
-  print(cm_stop)
-  print(cm_start)
+  cmd = f'{cm_stop} && {cm_start}'
+  print(f'Restarting {appname} using {appcall} at port {port}.')
+  show_cmd(cmd)
+  return cmd
+
+def process_conf():
+  pid = get_pid()
+  with open(conf_file, 'r') as conf:
+    content = conf.read().strip()
+  print(content)
 
 def main():
 
@@ -132,6 +163,9 @@ def main():
 
   elif sys.argv[1] == 'reload':
     return process_restart('reload')
+
+  elif sys.argv[1] in ('conf','-c'):
+    return process_conf()
 
   elif sys.argv[1] in ('-v','--version'):
     return print(f'Version: {v}')
