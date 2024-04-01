@@ -42,14 +42,12 @@ runapp reload  -s
 runapp list    -s
 ...
 ```
-To view the app settings config file or pid file, use the following options:
+To view the app settings config file or running process ids (if any), use the following options:
 
 ```console
 runapp (conf|-c)
 runapp (pid|pids|-p)
 ```
-
-> When using runapp, a directory named `~/.runapp/` will be created automatically in your home to store the process ids for each app/process that you run. The pids will get deleted automatically whenever the process is stopped. You can use the pid number to debug any issues you may run into when deploying apps.
 
 
 #### Installation
