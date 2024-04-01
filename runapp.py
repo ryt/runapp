@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-v = '0.0.2'
+v = '0.1.0'
 c = 'Copyright (C) 2024 Ray Mentose.'
 man="""
 runapp: Super lightweight interface for running and deploying gunicorn app processes.
@@ -24,9 +24,9 @@ Usage:
   -------------------------------------------------
   runapp    (conf|-c)
 
-  Show the contents of the pid file
-  ---------------------------------
-  runapp    (pid|-p)
+  Show the running process ids (if any)
+  -------------------------------------
+  runapp    (pid|pids|-p)
 
   Help manual and version
   -----------------------
@@ -47,22 +47,44 @@ import pydoc
 import requests
 import itertools
 
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 from configparser import ConfigParser
 
-pids_dir  = f'{os.path.expanduser("~")}/.runapp/'
+
+# From: https://stackoverflow.com/a/287944
+
+class bcolors:
+  HEADER    = '\033[95m'
+  OKBLUE    = '\033[94m'
+  OKCYAN    = '\033[96m'
+  OKGREEN   = '\033[92m'
+  WARNING   = '\033[93m'
+  FAIL      = '\033[91m'
+  ENDC      = '\033[0m'
+  BOLD      = '\033[1m'
+  UNDERLINE = '\033[4m'
+
+
 conf_file = f'runapp.conf'
+load_once = True
 
 
 def load_conf():
   """Load and parse the config file"""
 
+  # -- start: run once
+  global load_once
+  if not load_once:
+    return ''
+  load_once = False
+  # -- end: run once
+
   if not os.path.exists(conf_file):
     sys.exit('Sorry, the settings file (runapp.conf) could not be found in the current directory.')
 
   global config, appname, appcall, appuser, appgroup, workers, port
-  global run, exe, cme, pid_file
-  global macos_add, cm_start, cm_stop, cm_list
+  global run, exe, cme
+  global cm_start, cm_stop, cm_list
 
   # Specific app settings for gunicorn. 
   # To prevent errors, the section [global] will be automatically added to the config.
@@ -83,17 +105,10 @@ def load_conf():
   exe = ''
   cme = ''
 
-  pid_file = f'{pids_dir}{appname}.pid'
-
-  # On MacOS (i.e. Darwin) replace long folder names with '...':
-
-  macos_add = "--color=always | sed 's/Library.*MacOS/.../g'" if sys.platform == 'darwin' else '';
-
   # Main gunicorn and process list commands
 
-  cm_start = f'gunicorn {appcall} -n {appname} -p {pids_dir+appname}.pid -w {workers} -u {appuser} -g {appgroup} -b :{port} -D';
-  cm_stop  = f'kill -9 `cat {pid_file}` && rm {pid_file}';
-  cm_list  = f"ps aux | grep '[{appname[0:1]}]{appname[1:]}' {macos_add}";
+  cm_start = f'gunicorn {appcall} -n {appname} -w {workers} -u {appuser} -g {appgroup} -b :{port} -D';
+  cm_list  = f"ps aux | grep '[{appname[0:1]}]{appname[1:]}'";
 
 
 def ps_aux():
@@ -116,28 +131,43 @@ def ps_aux():
   COMMAND = command with all its arguments
   --
   """
+  global cm_list
+  cmd = cm_list
+
+  try:
+    out = check_output(cmd, shell=True, encoding='utf-8')
+  except CalledProcessError as e:
+    return []
+
+  out = re.sub(' +', ' ', out).strip()
+  out_list  = out.split('\n')
+  out_list  = [line.split(' ', 10) for line in out_list]
+  proc_list = []
+
+  if out_list:
+    for line in out_list:
+      proc_list.append({
+        'user'    : line[0],
+        'pid'     : line[1],
+        'cpu'     : line[2],
+        'mem'     : line[3],
+        'start'   : line[7],
+        'time'    : line[9],
+        'command' : line[10],
+      })
+
+  return proc_list
 
 
-def get_pid():
-  """Load the app settings config, check the ~/.runapp/ directory, and load existing process ids (if any)"""
+def get_pids():
+  """Check running processes and get existing process ids (if any)"""
+  pids = []
+  procs = ps_aux()
+  if procs:
+    for p in procs:
+      pids.append(p['pid'])
 
-  load_conf()
-
-  if os.path.exists(pids_dir) and os.path.isdir(pids_dir):
-    if os.path.exists(pid_file):
-      with open(pid_file, 'r') as p:
-        p = p.read().strip()
-      pid = p
-    else:
-      pid = ''
-  else:
-    try:
-      os.mkdir(pids_dir)
-      pid = ''
-    except OSError as error:
-      sys.exit(f'Could not create or access the ~/.runapp/ directory: {error}')
-
-  return pid
+  return pids
    
 
 def show_cmd(cmd):
@@ -150,58 +180,69 @@ def run_cmd(cmd):
   return check_output(cmd, shell=True, encoding='utf-8')
 
 def process_list():
-  pid = get_pid()
-  cmd = cm_list
-  show_cmd(cmd)
-  print(f'Listing running processes for {appname} (port {port}).')
-  run = run_cmd(cmd)
-  if run:
-    print(run)
+  load_conf()
+  show_cmd(cm_list)
+  procs = ps_aux()
+  if procs:
+    print(f'The app {appname} is currently running under {len(procs)} processes at port {port}.')
+    for p in procs:
+      guni_path = re.sub(r'^.*\s(\/[^\s]+gunicorn).*$', '\\1', p['command'])
+      add_using = f' using: {bcolors.OKCYAN}{guni_path}{bcolors.ENDC}' if 'gunicorn' in p['command'] else ''
+      print(f"- app: {appname}  pid: {bcolors.FAIL}{p['pid']}{bcolors.ENDC}  user: {p['user']}  start: {p['start']}  time: {p['time']} {add_using}")
   else:
-    print(f'No processes found for {appname}. App is currently not running.')
+    print(f'No processes found for {appname}. App is (most likely) not running.')
 
 def process_start():
-  pid = get_pid()
+  load_conf()
   cmd = cm_start
   show_cmd(cmd)
+  pids = get_pids()
+  if pids:
+    print(f'The app is already running with processes. Attempting to start again.')
   print(f'Starting {appname} using {appcall} at port {port}.')
-  run = run_cmd(cmd)
-  if run:
-    print(run)
-  else:
-    print('Nothing to start. Please double check your app configuration.')
+  try:
+    run = run_cmd(cmd)
+    print(run) if run else ''
+    process_list()
+  except CalledProcessError as e:
+    print('Nothing to start. Be sure to double check your app configuration.')
+    
 
 def process_stop():
-  pid = get_pid()
-  cmd = cm_stop
+  load_conf()
+  pids = get_pids()
+  cmd = f"kill -9 {' && kill -9 '.join(pids)}" if pids else ''
   show_cmd(cmd)
-  print(f'Stopping {appname} and unbiding from port {port}.')
+  print(f'Stopping {appname} and terminating {len(pids)} processes.')
   run = run_cmd(cmd)
-  if run:
-    print(run)
-  else:
-    print('Nothing to stop. Please double check your app configuration.')
+  print(run) if run else ''
+  if not pids:
+    print('Nothing to stop. Be sure to double check your app configuration.')
 
 def process_restart(input='reload'):
-  pid = get_pid()
-  cmd = f'{cm_stop} && {cm_start}'
-  print(f'Restarting {appname} using {appcall} at port {port}.')
+  load_conf()
+  pids = get_pids()
+  cmd = f"kill -9 {' && kill -9 '.join(pids)}" if pids else ''
+  cmd = f'{cmd} && {cm_start}' if pids else cm_start
   show_cmd(cmd)
-  run = run_cmd(cmd)
-  if run:
-    print(run)
-  else:
-    print('Nothing to restart. Please double check your app configuration.')
+  print(f'Restarting {appname} using {appcall} at port {port}.')
+  try:
+    run = run_cmd(cmd)
+    print(run) if run else ''
+    process_list()
+  except CalledProcessError as e:
+    print('Nothing to restart. Be sure to double check your app configuration.')
 
 def process_conf():
-  pid = get_pid()
+  load_conf()
   with open(conf_file, 'r') as conf:
     content = conf.read().strip()
   print(content)
 
 def process_pid():
-  pid = get_pid()
-  print(pid)
+  load_conf()
+  pids = get_pids()
+  print(f'{bcolors.FAIL}' + f'{bcolors.ENDC} {bcolors.FAIL}'.join(pids) + f'{bcolors.ENDC}')
 
 def main():
 
@@ -226,7 +267,7 @@ def main():
   elif sys.argv[1] in ('conf','-c'):
     return process_conf()
 
-  elif sys.argv[1] in ('pid','-p'):
+  elif sys.argv[1] in ('pids','pid','-p'):
     return process_pid()
 
   elif sys.argv[1] in ('-v','--version'):
