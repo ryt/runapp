@@ -83,8 +83,7 @@ def load_conf():
     sys.exit('Sorry, the settings file (runapp.conf) could not be found in the current directory.')
 
   global config, appname, appcall, appuser, appgroup, workers, port
-  global run, exe, cme
-  global cm_start, cm_stop, cm_list
+  global cm_start, cm_list
 
   # Specific app settings for gunicorn. 
   # To prevent errors, the section [global] will be automatically added to the config.
@@ -100,10 +99,6 @@ def load_conf():
   appgroup  = config.get('global', 'appgroup')  # e.g. staff
   workers   = config.get('global', 'workers')   # e.g. 2
   port      = config.get('global', 'port')      # e.g. 8000
-
-  run = ''
-  exe = ''
-  cme = ''
 
   # Main gunicorn and process list commands
 
