@@ -50,9 +50,8 @@ from subprocess import check_output, CalledProcessError
 from configparser import ConfigParser
 
 
-# From: https://stackoverflow.com/a/287944
-
-class bcolors:
+class bc:
+  """Colors for terminal output: https://stackoverflow.com/a/287944"""
   HEADER    = '\033[95m'
   OKBLUE    = '\033[94m'
   OKCYAN    = '\033[96m'
@@ -183,8 +182,8 @@ def process_list():
     print(f'The app {appname} is currently running under {len(procs)} processes at port {port}.')
     for p in procs:
       guni_path = re.sub(r'^.*\s(\/[^\s]+gunicorn).*$', '\\1', p['command'])
-      add_using = f' using: {bcolors.OKCYAN}{guni_path}{bcolors.ENDC}' if 'gunicorn' in p['command'] else ''
-      print(f"- app: {appname}  pid: {bcolors.FAIL}{p['pid']}{bcolors.ENDC}  user: {p['user']}  start: {p['start']}  time: {p['time']} {add_using}")
+      add_using = f' using: {bc.OKCYAN}{guni_path}{bc.ENDC}' if 'gunicorn' in p['command'] else ''
+      print(f"- app: {appname}  pid: {bc.FAIL}{p['pid']}{bc.ENDC}  user: {p['user']}  start: {p['start']}  time: {p['time']} {add_using}")
   else:
     print(f'No processes found for {appname}. App is (most likely) not running.')
 
@@ -238,7 +237,7 @@ def process_conf():
 def process_pid():
   load_conf()
   pids = get_pids()
-  print(f'{bcolors.FAIL}' + f'{bcolors.ENDC} {bcolors.FAIL}'.join(pids) + f'{bcolors.ENDC}')
+  print(f'{bc.FAIL}' + f'{bc.ENDC} {bc.FAIL}'.join(pids) + f'{bc.ENDC}')
 
 def main():
 
