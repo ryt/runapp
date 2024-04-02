@@ -44,7 +44,6 @@ import os
 import re
 import sys
 import pydoc
-import requests
 import itertools
 
 from subprocess import check_output, CalledProcessError
@@ -141,15 +140,17 @@ def ps_aux():
 
   if out_list:
     for line in out_list:
-      proc_list.append({
-        'user'    : line[0],
-        'pid'     : line[1],
-        'cpu'     : line[2],
-        'mem'     : line[3],
-        'start'   : line[7],
-        'time'    : line[9],
-        'command' : line[10],
-      })
+      # important: the process has to be a gunicorn (or related) process
+      if 'gunicorn' in line[10]:
+        proc_list.append({
+          'user'    : line[0],
+          'pid'     : line[1],
+          'cpu'     : line[2],
+          'mem'     : line[3],
+          'start'   : line[7],
+          'time'    : line[9],
+          'command' : line[10],
+        })
 
   return proc_list
 
