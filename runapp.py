@@ -98,9 +98,19 @@ def load_conf():
   workers   = config.get('global', 'workers')   # e.g. 2
   port      = config.get('global', 'port')      # e.g. 8000
 
+
+  # Additional options: ssl
+
+  sslcertkey = ''
+
+  if config.has_option('global', 'sslcertkey'):
+    sslck  = config.get('global', 'sslcertkey') # e.g. /srv/ssl.crt /srv/ssl.key
+    sslck  = sslck.split(' ')
+    sslcertkey = f'--certfile={sslck[0]} --keyfile={sslck[1]}'
+
   # Main gunicorn and process list commands
 
-  cm_start = f'gunicorn {appcall} -n {appname} -w {workers} -u {appuser} -g {appgroup} -b :{port} -D';
+  cm_start = f'gunicorn {sslcertkey} {appcall} -n {appname} -w {workers} -u {appuser} -g {appgroup} -b :{port} -D';
   cm_list  = f"ps aux | grep '[{appname[0:1]}]{appname[1:]}'";
 
 
