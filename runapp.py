@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-v = '0.1.0'
+v = '0.1.1'
 c = 'Copyright (C) 2024 Ray Mentose.'
 man="""
 runapp: Super lightweight interface for running and deploying gunicorn app processes.
@@ -14,6 +14,7 @@ Usage:
   runapp    stop
   runapp    restart
   runapp    reload
+  runapp    debug
   runapp    (list|-l)
 
   Show the gunicorn or shell command and exit (for any of the above options)
@@ -81,7 +82,7 @@ def load_conf():
     sys.exit('Sorry, the settings file (runapp.conf) could not be found in the current directory.')
 
   global config, appname, appcall, appuser, appgroup, workers, port
-  global cm_start, cm_list
+  global cm_start, cm_debug, cm_list, error_log
 
   # Specific app settings for gunicorn. 
   # To prevent errors, the section [global] will be automatically added to the config.
@@ -99,9 +100,13 @@ def load_conf():
   port      = config.get('global', 'port')      # e.g. 8000
 
 
-  # Additional options: ssl
+  # Additional options: error_log, ssl
 
+  error_log  = 'error.log'
   sslcertkey = ''
+
+  if config.has_option('global', 'error_log'):
+    error_log = config.get('global', 'error_log') # e.g. error.log or custom
 
   if config.has_option('global', 'sslcertkey'):
     sslck  = config.get('global', 'sslcertkey') # e.g. /srv/ssl.crt /srv/ssl.key
@@ -110,7 +115,8 @@ def load_conf():
 
   # Main gunicorn and process list commands
 
-  cm_start = f'gunicorn {sslcertkey} {appcall} -n {appname} -w {workers} -u {appuser} -g {appgroup} -b :{port} -D';
+  cm_start = f'gunicorn {sslcertkey} {appcall} -n {appname} -w {workers} -u {appuser} -g {appgroup} -b :{port} -D'
+  cm_debug = f'{cm_start.rstrip("-D")} --error-logfile {error_log}'
   cm_list  = f"ps aux | grep '[{appname[0:1]}]{appname[1:]}'";
 
 
@@ -238,6 +244,21 @@ def process_restart(input='reload'):
   except CalledProcessError as e:
     print('Nothing to restart. Be sure to double check your app configuration.')
 
+def process_debug():
+  load_conf()
+  pids = get_pids()
+  cmd = f"kill -9 {' && kill -9 '.join(pids)}" if pids else ''
+  cmd = f'{cmd} && {cm_debug}' if pids else cm_debug
+  show_cmd(cmd)
+  print(f'Running {appname} in debug mode using {appcall} at port {port}. Review {error_log} for details. Ctrl/Cmd+C to exit.')
+  try:
+    try:
+      run_cmd(cmd)
+    except:
+      print('')
+  except CalledProcessError as e:
+    print('Nothing to debug. Be sure to double check your app configuration.')
+
 def process_conf():
   load_conf()
   with open(conf_file, 'r') as conf:
@@ -268,6 +289,9 @@ def main():
 
   elif sys.argv[1] == 'reload':
     return process_restart('reload')
+
+  elif sys.argv[1] == 'debug':
+    return process_debug()
 
   elif sys.argv[1] in ('conf','-c'):
     return process_conf()

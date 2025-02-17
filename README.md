@@ -19,9 +19,10 @@ workers  = 2
 port     = 8000
 ```
 
-Additional options: SSL
+Additional options: Error log, SSL
 
 ```ini
+error_log  = error.log
 sslcertkey = /srv/ssl.crt /srv/ssl.key
 ```
 
@@ -38,6 +39,7 @@ runapp start
 runapp stop
 runapp restart
 runapp reload
+runapp debug
 runapp (list|-l)
 ```
 To simply print the gunicorn or shell command used and exit, add the `-s` option as the **third** parameter to any option above.
@@ -55,6 +57,12 @@ runapp (conf|-c)
 runapp (pid|pids|-p)
 ```
 
+To debug the app, use the `debug` option to enter debug mode. This will stop the running app and start a gunicorn instance in standard (non-daemon) mode and will log errors to the specified `error_log` file in the config. The default file is `error.log`.
+
+```console
+runapp debug
+```
+Once the debugging is complete, use `Ctrl/Cmd+C` to exit and restart the app normally.
 
 #### Installation
 
