@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 v = '0.1.2'
-c = 'copyright (c) 2024 ray mentose, https://github.com/ryt/runapp'
+c = 'Copyright (C) 2024 Ray (github.com/ryt)'
 man="""
 runapp: Super lightweight interface for running and deploying gunicorn app processes.
 --
