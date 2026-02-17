@@ -49,13 +49,12 @@ To manage processes with specified config and appdir paths:
 runapp  (reload|start|stop|...)  /path/to/runapp.conf  /path/to/appdir
 ```
 
-To list current processes:
+To list current processes use `(list|-l)` or `(all|-a)`:
 
-```yaml
-runapp (list|-l)  # list from current dir
-runapp (all|-a)   # list all runapp processes
-
-runapp (list|-l) /path/to/runapp.conf /path/to/appdir  # list from specified dir
+```console
+runapp list
+runapp all
+runapp list /path/to/runapp.conf /path/to/appdir
 ```
 
 To simply print the gunicorn or shell command used and exit, add the `-s` option as the **third** parameter to any option above.
