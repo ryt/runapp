@@ -51,11 +51,11 @@ runapp  (reload|start|stop|...)  /path/to/runapp.conf  /path/to/appdir
 
 To list current processes:
 
-```console
+```ini
 runapp (list|-l)  # list from current dir
 runapp (all|-a)   # list all runapp processes
 
-runapp (list|-l) /path/to/runapp.conf  /path/to/appdir  # list from specified dir
+runapp (list|-l) /path/to/runapp.conf /path/to/appdir  # list from specified dir
 ```
 
 To simply print the gunicorn or shell command used and exit, add the `-s` option as the **third** parameter to any option above.
