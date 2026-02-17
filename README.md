@@ -98,7 +98,5 @@ ln -s {install}/runapp/runapp.py /usr/bin/runapp
 ```
 > The **bin** directory may differ based on your system. It could be */usr/bin*, */usr/local/bin*, */usr/opt/bin*, etc.
 
-#### Extras
-**Note:** Ported from the original Perl script to Python. You can access the perl version at [ryt/runapp-perl](https://github.com/ryt/runapp-perl). 
 
 
