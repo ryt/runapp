@@ -22,7 +22,6 @@ port     = 8000
 Additional options: Error log, SSL
 
 ```ini
-error_log  = error.log
 sslcertkey = /srv/ssl.crt /srv/ssl.key
 ```
 
@@ -41,14 +40,31 @@ runapp restart
 runapp reload
 runapp debug
 runapp (list|-l)
+runapp (all|-a)
 ```
+
+To manage processes with specified config and appdir paths:
+
+```console
+runapp  (reload|start|stop|...)  /path/to/runapp.conf  /path/to/appdir
+```
+
+To list current processes:
+
+```console
+runapp (list|-l)  # list from current dir
+runapp (all|-a)   # list all runapp processes
+
+runapp (list|-l) /path/to/runapp.conf  /path/to/appdir  # list from specified dir
+```
+
 To simply print the gunicorn or shell command used and exit, add the `-s` option as the **third** parameter to any option above.
 
 ```console
+runapp ...     -s
 runapp start   -s
 runapp reload  -s
 runapp list    -s
-...
 ```
 To view the app settings config file or running process ids (if any), use the following options:
 
@@ -57,7 +73,7 @@ runapp (conf|-c)
 runapp (pid|pids|-p)
 ```
 
-To debug the app, use the `debug` option to enter debug mode. This will stop the running app and start a gunicorn instance in standard (non-daemon) mode and will log errors to the specified `error_log` file in the config. The default file is `error.log`.
+To debug the app, use the `debug` option to enter debug mode. This will stop the running app and start a gunicorn instance in standard (non-daemon) mode and will display errors in the terminal.
 
 ```console
 runapp debug
