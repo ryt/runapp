@@ -51,7 +51,7 @@ runapp  (reload|start|stop|...)  /path/to/runapp.conf  /path/to/appdir
 
 To list current processes:
 
-```bash
+```yaml
 runapp (list|-l)  # list from current dir
 runapp (all|-a)   # list all runapp processes
 
