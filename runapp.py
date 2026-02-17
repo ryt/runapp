@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-__version__   = '0.1.3'
+__version__   = '0.1.4'
 __author__    = 'Copyright (C) 2024-2026 Ray (github.com/ryt)'
 __manual__    = """
-runapp: Super lightweight interface for running and deploying python web apps via gunicorn.
+runapp: Super lightweight wrapper for running and deploying python web apps via gunicorn.
 --
 Usage:
 
@@ -15,8 +15,8 @@ Usage:
   runapp  restart
   runapp  reload
   runapp  debug
-  runapp  (list|-l)
-  runapp  (all|-a)
+  runapp  (list|-l)  # list current dir process
+  runapp  (all|-a)   # list all runapp processes
 
   To manage processes with specified config and appdir
   ----------------------------------------------------
@@ -24,7 +24,7 @@ Usage:
 
   Show the gunicorn or shell command and exit (for any of the above options)
   --------------------------------------------------------------------------
-  runapp  ...    -s
+  runapp  ...  -s
 
   Show the contents of the app settings config file
   -------------------------------------------------
@@ -54,8 +54,8 @@ import re
 import sys
 import pydoc
 import itertools
-from types import SimpleNamespace
 
+from types import SimpleNamespace
 from subprocess import check_output, CalledProcessError
 from configparser import ConfigParser
 
@@ -75,7 +75,9 @@ class bc:
 
 class settings:
   """Basic settings"""
+  args      = []
   conf_name = 'runapp.conf'
+  conf_file = ''
   add_suffx = 'runapp'
   load_once = True
 
@@ -98,11 +100,11 @@ class settings:
 
 def validate_specified_configs():
   """Check if there are valid specified paths (config and appdir) in cli argument"""
-  if len(sys.argv) < 4:
+  if len(settings.args) < 4:
     return False
 
-  specified_config = f'{os.path.dirname(sys.argv[2])}/{settings.conf_name}'
-  specified_appdir = os.path.abspath(sys.argv[3])
+  specified_config = f'{os.path.dirname(settings.args[2])}/{settings.conf_name}'
+  specified_appdir = os.path.abspath(settings.args[3])
 
   if not os.path.exists(specified_config):
     sys.exit(f'Sorry, the settings file ({specified_config}) could not be found.')
@@ -128,6 +130,8 @@ def load_conf():
     conf_file = validated_specified_config.config # specified dir
   else:
     conf_file = settings.conf_name # current dir
+
+  settings.conf_file = conf_file # used for process_conf()
 
   # -- start: run once ?? -- #
   if not settings.load_once:
@@ -182,7 +186,6 @@ def load_conf():
 
   settings.cm_debug   = f'{settings.cm_start.rstrip("-D")} --log-level debug'
   settings.cm_list    = f"ps aux | grep '[{settings.appname[0:1]}]{settings.appname[1:]}'";
-  settings.cm_listall = f"ps aux | grep '{settings.add_suffx}'"
 
 
 def ps_aux(show_all=False):
@@ -223,7 +226,7 @@ def ps_aux(show_all=False):
   if out_list:
     for line in out_list:
       # important: the process has to be a gunicorn (or related) process
-      if 'gunicorn' in line[10]:
+      if len(line) > 9 and 'gunicorn' in line[10]:
         proc_list.append({
           'user'    : line[0],
           'pid'     : line[1],
@@ -251,11 +254,11 @@ def get_pids():
 def show_cmd(cmd):
   """Print the gunicorn or shell command and exit on the '-s' option"""
   # for default (current dir)
-  if len(sys.argv) > 2 and sys.argv[2] == '-s':
+  if len(settings.args) > 2 and settings.args[2] == '-s':
     sys.exit(cmd)
   
   # for specified configs
-  elif len(sys.argv) > 4 and sys.argv[4] == '-s':
+  elif len(settings.args) > 4 and settings.args[4] == '-s':
     sys.exit(cmd)
 
 
@@ -265,11 +268,13 @@ def run_cmd(cmd):
 
 
 def process_list(show_all=False):
-  load_conf()
   if show_all:
+    settings.cm_listall = f"ps aux | grep '{settings.add_suffx}'"
     show_cmd(settings.cm_listall)
   else:
+    load_conf()
     show_cmd(settings.cm_list)
+
   procs = ps_aux(show_all)
   if procs:
     if show_all:
@@ -378,45 +383,50 @@ def process_pid():
   print(f'{bc.FAIL}' + f'{bc.ENDC} {bc.FAIL}'.join(pids) + f'{bc.ENDC}')
 
 
-def main():
+def main(*args):
+  """If runapp is imported, main can be called with arguments. If not, it defaults back to cli mode."""
+  if not args:
+    args = sys.argv[0:]
 
-  if len(sys.argv) == 1:
+  settings.args = args
+
+  if len(args) == 1:
     return process_list()
 
-  elif sys.argv[1] in ('list','-l'):
+  elif args[1] in ('list','-l'):
     return process_list()
 
-  elif sys.argv[1] == 'start':
+  elif args[1] == 'start':
     return process_start()
 
-  elif sys.argv[1] == 'stop':
+  elif args[1] == 'stop':
     return process_stop()
 
-  elif sys.argv[1] == 'restart':
+  elif args[1] == 'restart':
     return process_restart()
 
-  elif sys.argv[1] == 'reload':
+  elif args[1] == 'reload':
     return process_restart('reload')
 
-  elif sys.argv[1] == 'debug':
+  elif args[1] == 'debug':
     return process_debug()
 
-  elif sys.argv[1] in ('conf','-c'):
+  elif args[1] in ('conf','-c'):
     return process_conf()
 
-  elif sys.argv[1] in ('pids','pid','-p'):
+  elif args[1] in ('pids','pid','-p'):
     return process_pid()
 
-  elif sys.argv[1] in ('all','-a'):
+  elif args[1] in ('all','-a'):
     return process_list(show_all=True)
 
-  elif sys.argv[1] in ('-v','--version'):
+  elif args[1] in ('-v','--version'):
     return print(f'Version: {__version__}')
 
-  elif sys.argv[1] in ('help','-h','--help'):
+  elif args[1] in ('help','-h','--help'):
     return print(__manual__.strip())
 
-  elif sys.argv[1] == 'man':
+  elif args[1] == 'man':
     return pydoc.pager(__manual__.strip())
 
   else:

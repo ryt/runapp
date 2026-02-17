@@ -1,5 +1,5 @@
 # runapp.py
-:atom: Super lightweight interface for running and deploying gunicorn app processes.
+:atom: Super lightweight wrapper for running and deploying python web apps via gunicorn.
 
 #### Instructions
 
