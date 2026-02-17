@@ -53,8 +53,8 @@ To list current processes use `(list|-l)` or `(all|-a)`:
 
 ```console
 runapp list
-runapp all
 runapp list /path/to/runapp.conf /path/to/appdir
+runapp all # all runapp processes
 ```
 
 To simply print the gunicorn or shell command used and exit, add the `-s` option as the **third** parameter to any option above.
