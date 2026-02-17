@@ -19,7 +19,7 @@ workers  = 2
 port     = 8000
 ```
 
-Additional options: Error log, SSL
+Additional options: SSL
 
 ```ini
 sslcertkey = /srv/ssl.crt /srv/ssl.key
