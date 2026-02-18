@@ -305,7 +305,11 @@ def process_list(show_all=False):
           f"time: {p['time']} {add_using}"
         )))
   else:
-    print(f'No processes found for {settings.appname}. App is (most likely) not running.')
+    if show_all:
+      none_msg = f'No processes found for {settings.add_suffx}. Apps are (most likely) not running.'
+    else:
+      none_msg = f'No processes found for {settings.appname}. App is (most likely) not running.'
+    print(none_msg)
 
 
 def process_start():
