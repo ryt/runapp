@@ -171,12 +171,12 @@ def load_conf():
   if config.has_option('global', 'sslcertkey'):
     sslck  = config.get('global', 'sslcertkey') # e.g. /srv/ssl.crt /srv/ssl.key
     sslck  = sslck.split(' ')
-    sslcertkey = f'--certfile={sslck[0]} --keyfile={sslck[1]}'
+    settings.sslcertkey = f'--certfile={sslck[0]} --keyfile={sslck[1]}'
 
   # Main gunicorn and process list commands
 
   settings.cm_start = ''.join((
-    f'gunicorn {sslcertkey} {settings.appcall} ',
+    f'gunicorn {settings.sslcertkey} {settings.appcall} ',
     f'-n {settings.appsuffx} ',
     f'-w {settings.workers} ',
     f'-u {settings.appuser} ',
